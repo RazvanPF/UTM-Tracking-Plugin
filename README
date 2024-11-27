@@ -1,0 +1,55 @@
+**UTM Tracking Plugin** is a free, fully developed WordPress plugin that simplifies campaign tracking by capturing, storing, and propagating UTM parameters across pages. Designed for ease of use, it ensures accurate attribution for marketing efforts.
+
+## Key Features
+- **UTM Parameter Tracking:** Captures and stores UTM parameters (`utm_campaign`, `utm_source`, `utm_medium`, etc.) from URLs.
+- **Persistent Data:** Stores UTM parameters in localStorage for consistent tracking across sessions.
+- **Form Integration:** Automatically populates hidden form fields with UTM data.
+- **Customizable Parameters:** Configure which UTM parameters to track via plugin settings.
+- **Internal Link Propagation:** Appends UTM parameters to internal links for seamless tracking.
+
+## Installation
+1. **Option 1:** Upload individual plugin files (`utm-tracker.php`, `utm-tracker-settings.php`, and `utm-tracker.js`) and zip them into a `.zip` file.
+2. **Option 2:** Download the pre-zipped plugin file.
+3. Go to **WordPress Dashboard** > **Plugins** > **Add New** > **Upload Plugin**.
+4. Select the `.zip` file, upload, and **Activate**.
+
+## Configuration
+1. Go to **Settings** > **UTM Tracker**.
+2. Enter the UTM parameters to track, separated by commas (default: `utm_campaign`, `utm_source`, `utm_medium`, `utm_content`).
+3. Save changes.
+
+## How to Use
+1. **Add UTM Parameters to URLs:**  
+   Example:  
+   `https://yourwebsite.com/?utm_campaign=TestCampaign&utm_source=Google&utm_medium=CPC&utm_content=Ad1`.
+   
+2. **Verify Storage:**  
+   Open browser Developer Tools > **Application** > **Local Storage** to confirm UTM data is stored.
+
+3. **Set Up Forms:**  
+   Add hidden input fields to your forms:  
+   ```html
+   <input type="hidden" name="utm_campaign">
+   <input type="hidden" name="utm_source">
+   <input type="hidden" name="utm_medium">
+   <input type="hidden" name="utm_content">
+
+    Ensure field names match the parameters set in the plugin.
+
+## Security Overview
+- **Input Validation:** All settings are sanitized using `sanitize_text_field()`.
+- **Output Escaping:** UTM parameters are escaped using `esc_attr()` to prevent XSS.
+- **User Access Control:** Settings are restricted to administrators via `manage_options`.
+- **Data Storage:** UTM parameters are stored in localStorage, suitable for non-sensitive data.
+
+## Troubleshooting
+- **UTM Data Missing:** Ensure hidden field names in your forms match the parameters in plugin settings.
+- **Data Not Persisting:** Check browser settings for localStorage restrictions.
+
+## Additional Notes
+- **Safe Development Standards:** Built with WordPress coding standards, avoiding direct database queries or unsafe JavaScript operations.
+- **Customization Ready:** Supports modifications for additional functionality like auto-expiry of UTM data.
+
+---
+
+Enjoy seamless UTM tracking and accurate campaign insights with the UTM Tracking Plugin!
