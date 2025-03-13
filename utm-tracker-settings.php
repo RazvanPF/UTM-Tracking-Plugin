@@ -80,7 +80,7 @@ function utm_tracker_settings_init() {
 	// Add Bypass Cache Toggle Field
 	add_settings_field(
 		'utm_tracker_bypass_cache',
-		__('Bypass Cache', 'utm-tracker') . ' <span class="tooltip-icon">ℹ️<span class="tooltip-text">Enable this setting if a caching plugin interferes with UTM functionality.</span></span>',
+		__('Bypass Cache', 'utm-tracker') . ' <span class="tooltip-icon">ℹ<span class="tooltip-text">Enable this setting if a caching plugin interferes with UTM functionality.</span></span>',
 		'utm_tracker_bypass_cache_render',
 		'utmTracker',
 		'utm_tracker_section'
@@ -215,7 +215,7 @@ function utm_tracker_bypass_cache_render() {
             display: inline-block;
             cursor: pointer;
             font-weight: bold;
-            color: #0073aa;
+            color: #fff;
             font-size: 14px;
             position: relative;
             margin-left: 5px; /* Space between label and icon */
