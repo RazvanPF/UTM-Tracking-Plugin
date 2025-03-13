@@ -1,55 +1,134 @@
-**UTM Tracking Plugin** is a free, fully developed WordPress plugin that simplifies campaign tracking by capturing, storing, and propagating UTM parameters across pages. Designed for ease of use, it ensures accurate attribution for marketing efforts.
+# UTM Tracker - WordPress Plugin
 
-## Key Features
-- **UTM Parameter Tracking:** Captures and stores UTM parameters (`utm_campaign`, `utm_source`, `utm_medium`, etc.) from URLs.
-- **Persistent Data:** Stores UTM parameters in localStorage for consistent tracking across sessions.
-- **Form Integration:** Automatically populates hidden form fields with UTM data.
-- **Customizable Parameters:** Configure which UTM parameters to track via plugin settings.
-- **Internal Link Propagation:** Appends UTM parameters to internal links for seamless tracking.
-
-## Installation
-1. **Option 1:** Upload individual plugin files (`utm-tracker.php`, `utm-tracker-settings.php`, and `utm-tracker.js`) and zip them into a `.zip` file.
-2. **Option 2:** Download the pre-zipped plugin file.
-3. Go to **WordPress Dashboard** > **Plugins** > **Add New** > **Upload Plugin**.
-4. Select the `.zip` file, upload, and **Activate**.
-
-## Configuration
-1. Go to **Settings** > **UTM Tracker**.
-2. Enter the UTM parameters to track, separated by commas (default: `utm_campaign`, `utm_source`, `utm_medium`, `utm_content`).
-3. Save changes.
-
-## How to Use
-1. **Add UTM Parameters to URLs:**  
-   Example:  
-   `https://yourwebsite.com/?utm_campaign=TestCampaign&utm_source=Google&utm_medium=CPC&utm_content=Ad1`.
-   
-2. **Verify Storage:**  
-   Open browser Developer Tools > **Application** > **Local Storage** to confirm UTM data is stored.
-
-3. **Set Up Forms:**  
-   Add hidden input fields to your forms:  
-   ```html
-   <input type="hidden" name="utm_campaign">
-   <input type="hidden" name="utm_source">
-   <input type="hidden" name="utm_medium">
-   <input type="hidden" name="utm_content">
-
-    Ensure field names match the parameters set in the plugin.
-
-## Security Overview
-- **Input Validation:** All settings are sanitized using `sanitize_text_field()`.
-- **Output Escaping:** UTM parameters are escaped using `esc_attr()` to prevent XSS.
-- **User Access Control:** Settings are restricted to administrators via `manage_options`.
-- **Data Storage:** UTM parameters are stored in localStorage, suitable for non-sensitive data.
-
-## Troubleshooting
-- **UTM Data Missing:** Ensure hidden field names in your forms match the parameters in plugin settings.
-- **Data Not Persisting:** Check browser settings for localStorage restrictions.
-
-## Additional Notes
-- **Safe Development Standards:** Built with WordPress coding standards, avoiding direct database queries or unsafe JavaScript operations.
-- **Customization Ready:** Supports modifications for additional functionality like auto-expiry of UTM data.
+### Version: 2.4  
+### Author: Razvan Faraon  
+### License: GPL v2 or later  
 
 ---
 
-Enjoy seamless UTM tracking and accurate campaign insights with the UTM Tracking Plugin!
+## About the Plugin  
+
+UTM Tracker is a powerful WordPress plugin designed to track UTM parameters, store them in sessions, and append them dynamically to internal and external links. It ensures that marketing and tracking data remains intact across user navigation, even when moving between pages or subdomains.
+
+In addition to UTM tracking, this plugin provides advanced features such as **email replacement based on UTM presence**, **host-based UTM propagation**, and **cache bypass** to improve compatibility with caching plugins.
+
+With an intuitive settings panel, users can configure UTM rules, debug logs, email replacements, and cache settings effortlessly.
+
+---
+
+## Features  
+
+- Track & Store UTM Parameters in Sessions  
+- Automatically Append UTM Parameters to Internal & Allowed External Links  
+- Replace Email Addresses Dynamically Based on UTM Presence  
+- Host-Based UTM Propagation – Define allowed domains where UTM parameters should persist  
+- Enable/Disable Debug Logs for troubleshooting  
+- Hide UTM Parameters from the URL after storing them in session  
+- Bypass Cache – Helps prevent conflicts with caching plugins  
+- User-Friendly Settings Panel with Live Updates  
+
+---
+
+## Use Cases  
+
+### 🔹 Track UTM Parameters Without Losing Data  
+If a visitor lands on your site with UTM parameters (e.g., from an ad campaign), the plugin will **store those UTM values in a session**. Even if they navigate through multiple pages, the UTM parameters will **persist** in the background.
+
+### 🔹 Ensure UTM Parameters Stay on Internal & External Links  
+If a visitor clicks an internal or allowed external link, the plugin **automatically appends the stored UTM parameters**, ensuring attribution continuity.
+
+### 🔹 Email Replacement Based on UTM Presence  
+If a user lands on your site with UTM parameters but **doesn't fill out a form**, instead deciding to email you manually, they will see a **different email address** (set in the plugin settings).  
+- If you receive an email at the **alternate UTM-based email**, you **know the user came from a tracked campaign**.  
+- If they use your **regular email**, it indicates they came from an **organic or untracked source**.
+
+### 🔹 Hide UTM Parameters for a Cleaner URL  
+This feature **removes UTM parameters from the browser URL** while keeping them in session storage, providing a **cleaner** experience for users while maintaining tracking integrity.
+
+### 🔹 Bypass Cache for Caching Plugins  
+If a caching plugin **interferes with UTM tracking**, enabling the **Bypass Cache** option ensures that each visitor receives fresh UTM data without being affected by previously cached pages.
+
+---
+
+## Repository Contents  
+
+This repository contains:
+
+- Full Plugin Code - Editable files for customization.  
+- `UTM Tracker Plugin.zip` - Ready-to-install version for direct WordPress installation.  
+
+### Options for Users:  
+1. **Want to install the plugin immediately?**  
+   - Download the `UTM Tracker Plugin.zip` and install it via WordPress.  
+2. **Want to modify the plugin?**  
+   - Clone/download the repository, remove the `.zip` file, and make your modifications before zipping.  
+
+---
+
+## Installation & Usage  
+
+### Method 1: Installing from WordPress Dashboard  
+
+1. Go to **Plugins > Add New > Upload Plugin**.  
+2. Upload `UTM Tracker Plugin.zip`.  
+3. Click **Install Now**, then **Activate**.  
+
+### Method 2: Manual Installation (For Developers)  
+
+1. Download or clone this repository.  
+2. (Optional) Modify the plugin code if needed.  
+3. Delete the `.zip` file (if you plan to package your own).  
+4. Compress the plugin folder into a new `.zip` file.  
+5. Upload & activate via the WordPress admin panel.  
+
+---
+
+## How to Use  
+
+### General Tab:  
+
+1. Navigate to **Settings > UTM Tracker** in WordPress Admin.  
+2. Configure the following options:  
+
+#### 1. Define UTM Parameters to Track  
+- Add or modify **which UTM parameters** should be tracked (e.g., `utm_campaign, utm_source, utm_medium`).  
+
+#### 2. Configure Host Propagation  
+- Add **allowed hostnames** where UTM parameters should persist.  
+
+#### 3. Enable Debug Logging (Optional)  
+- Logs UTM activity to the console for troubleshooting.  
+
+#### 4. Replace Emails Dynamically  
+- Add **email replacement rules** to show a different email if UTM parameters are detected.  
+- Example:  
+  - **contact@company.com** → **utmcontact@company.com** *(when UTM is present)*  
+
+#### 5. Hide UTM Parameters from URL  
+- Cleans up the browser URL while keeping UTM tracking intact.  
+
+#### 6. Enable Bypass Cache *(Recommended if using caching plugins)*  
+- Helps prevent caching plugins from interfering with UTM functionality.  
+
+#### 7. Save Changes & Clear Cache Notification  
+- After saving, a **notification** reminds users to clear their cache if using a caching plugin.  
+
+---
+
+## 📌 Notes on Caching Plugins  
+
+If your WordPress site uses a caching plugin (e.g., **WP Rocket, W3 Total Cache, or LiteSpeed Cache**), UTM parameters may get cached incorrectly.  
+
+### ✅ How to Ensure UTM Tracking Works with Caching Plugins  
+
+1. **Enable "Bypass Cache" in the UTM Tracker settings** *(recommended)*.  
+2. **Exclude UTM-related pages from caching** *(if issues persist)*.  
+3. **Manually clear the cache after saving changes in UTM Tracker**.  
+
+For best results, consult your caching plugin’s documentation on excluding query parameters from caching.
+
+---
+
+## Support & Feedback  
+
+For bug reports, suggestions, or general inquiries, please open an issue in the repository.  
