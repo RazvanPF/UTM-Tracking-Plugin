@@ -2,7 +2,7 @@
 /*
 Plugin Name: UTM Tracker
 Description: A powerful UTM tracking solution that stores UTM parameters, dynamically appends them to links, replaces email addresses based on UTM presence, removes UTM parameters from URLs for cleaner links, and includes caching compatibility options. Perfect for campaign tracking, lead attribution, and optimizing marketing performance.
-Version: 2.4
+Version: 1.4
 Author: Razvan Faraon
 */
 
@@ -17,7 +17,6 @@ function utm_tracker_start_session() {
 }
 add_action('init', 'utm_tracker_start_session', 1);
 
-// Store UTM parameters in session
 // Store UTM parameters in session and optionally hide them
 function utm_tracker_store_utm_params() {
     if (!session_id()) {
@@ -67,7 +66,7 @@ function utm_tracker_modify_links() {
         if (empty($utms)) return $buffer;
 
         $hosts = utm_tracker_get_allowed_hosts();
-        if (empty($hosts)) return $buffer; // 🚀 **If no hosts are set, DO NOT modify links**
+        if (empty($hosts)) return $buffer; // ðŸš€ **If no hosts are set, DO NOT modify links**
 
         preg_match_all('/<a[^>]*href=["\']([^"\']+)["\']/i', $buffer, $matches);
         
@@ -105,7 +104,7 @@ function utm_tracker_enqueue_script() {
     $debug_logs = get_option('utm_tracker_debug_logs', 'off'); // Fetch debug log setting
     $email_replacements = get_option('utm_tracker_email_replacements', []);
 
-    // 🔥 Ensure email replacements are re-indexed before passing to JS
+    // ðŸ”¥ Ensure email replacements are re-indexed before passing to JS
     if (!empty($email_replacements) && is_array($email_replacements)) {
         $email_replacements = array_values($email_replacements); // Remove unique keys
     }

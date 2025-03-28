@@ -1,10 +1,29 @@
 <?php
 
-// Add settings page to the WordPress menu
-function utm_tracker_add_admin_menu() {
-    add_options_page('UTM Tracker Settings', 'UTM Tracker', 'manage_options', 'utm-tracker', 'utm_tracker_options_page');
+// Add UTM Tracker as a top-level menu with custom icon
+function utm_tracker_add_top_level_menu() {
+    add_menu_page(
+        'UTM Tracker Settings',             // Page Title
+        'UTM Tracker',                      // Menu Title
+        'manage_options',                   // Capability
+        'utm-tracker',                      // Menu Slug
+        'utm_tracker_options_page',         // Callback Function
+        plugins_url('utmlogo.png', __FILE__), // Icon Path (in plugin root)
+        81                                  // Position (adjust as needed)
+    );
+
+    // Optional styling for the icon size
+    add_action('admin_head', function () {
+        echo '<style>
+            #toplevel_page_utm-tracker .wp-menu-image img {
+                width: 26px !important;
+                height: 26px !important;
+                margin-top: -5px !important;
+            }
+        </style>';
+    });
 }
-add_action('admin_menu', 'utm_tracker_add_admin_menu');
+add_action('admin_menu', 'utm_tracker_add_top_level_menu');
 
 // Register settings
 function utm_tracker_settings_init() {
@@ -87,6 +106,9 @@ function utm_tracker_settings_init() {
 	);
 }
 add_action('admin_init', 'utm_tracker_settings_init');
+
+//Register License
+register_setting('utmTracker', 'utm_tracker_license_key');
 
 // Sanitize host list input
 function utm_tracker_sanitize_hosts($input) {
@@ -215,10 +237,10 @@ function utm_tracker_bypass_cache_render() {
             display: inline-block;
             cursor: pointer;
             font-weight: bold;
-            color: #fff;
+            color: #0073aa;
             font-size: 14px;
             position: relative;
-            margin-left: 5px; /* Space between label and icon */
+            margin-left: 5px; 
         }
 
         .tooltip-text {
@@ -246,7 +268,7 @@ function utm_tracker_bypass_cache_render() {
 
 // Render Debug Logs Toggle
 function utm_tracker_debug_logs_render() {
-    $debug_logs = get_option('utm_tracker_debug_logs', 'off'); // Default is off
+    $debug_logs = get_option('utm_tracker_debug_logs', 'off'); 
     ?>
     <label class="switch">
         <input type="checkbox" name="utm_tracker_debug_logs" value="on" <?php checked($debug_logs, 'on'); ?>>
@@ -257,8 +279,8 @@ function utm_tracker_debug_logs_render() {
 		.switch {
 			position: relative;
 			display: inline-block;
-			width: 40px; /* Toggle width */
-			height: 22px; /* Toggle height */
+			width: 40px; 
+			height: 22px; 
 		}
 
 		/* Hide Default Checkbox */
@@ -278,16 +300,16 @@ function utm_tracker_debug_logs_render() {
 			bottom: 0;
 			background-color: #ccc;
 			transition: .4s;
-			border-radius: 22px; /* Rounded edges */
+			border-radius: 22px; 
 		}
 
 		/* Small Circle Inside Toggle */
 		.slider:before {
 			position: absolute;
 			content: "";
-			height: 16px; /* Circle height */
-			width: 16px; /* Circle width */
-			left: 3px; /* Proper spacing */
+			height: 16px; 
+			width: 16px; 
+			left: 3px; 
 			bottom: 3px;
 			background-color: white;
 			transition: .4s;
@@ -420,6 +442,111 @@ function utm_tracker_options_page() {
             submit_button();
             ?>
         </form>
+
+        <!-- License Activation Box -->
+        <div class="license-key-container">
+            <label class="license-key-label">License Key</label>
+            <input type="text" id="utm-license-key-input" 
+                placeholder="Enter your license key" 
+                value="<?php echo esc_attr(get_option('utm_tracker_license_key', '')); ?>" />
+            <button type="button" id="utm-license-activate-btn" disabled>Activate License</button>
+        </div>
+
+        <div id="utm-license-message"></div>
+
+        <style>
+        .license-key-container {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin: 30px 0 0;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 60%;
+        }
+        .license-key-label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+        #utm-license-key-input {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            transition: all 0.2s ease-in-out;
+        }
+        #utm-license-key-input:focus {
+            border-color: #007cba;
+            box-shadow: 0 0 8px rgba(0, 124, 186, 0.3);
+            outline: none;
+        }
+        #utm-license-activate-btn {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            margin-left: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        #utm-license-activate-btn:hover {
+            background: #005a9e;
+        }
+        #utm-license-activate-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        #utm-license-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #007cba;
+        }
+        </style>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const keyInput = document.getElementById("utm-license-key-input");
+            const activateBtn = document.getElementById("utm-license-activate-btn");
+            const messageBox = document.getElementById("utm-license-message");
+
+            keyInput.addEventListener("input", function() {
+                activateBtn.disabled = keyInput.value.trim() === "";
+            });
+
+            activateBtn.addEventListener("click", function() {
+                const key = keyInput.value.trim();
+                messageBox.innerHTML = "🔄 Verifying license...";
+
+                fetch(ajaxurl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({
+                        action: 'utm_activate_license',
+                        license_key: key,
+                        _ajax_nonce: '<?php echo wp_create_nonce("utm_license_nonce"); ?>'
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    messageBox.innerHTML = data.message;
+                })
+                .catch(() => {
+                    messageBox.innerHTML = "❌ Something went wrong.";
+                });
+            });
+        });
+        </script>
+
     </div>
 
     <style>
@@ -493,10 +620,10 @@ function utm_tracker_options_page() {
 			color: #555;
 			margin: 0 8px;
 			display: flex;
-			align-items: center; /* Centers text vertically */
+			align-items: center; 
 			justify-content: center;
-			height: 100% !important; /* Ensures it takes full height of the row */
-			white-space: nowrap; /* Prevents wrapping */
+			height: 100% !important; 
+			white-space: nowrap; 
 			padding-top: 15px;
         }
 		
@@ -506,3 +633,19 @@ function utm_tracker_options_page() {
     </style>
     <?php
 }
+
+add_action('wp_ajax_utm_activate_license', function () {
+    check_ajax_referer('utm_license_nonce');
+
+    $key = sanitize_text_field($_POST['license_key'] ?? '');
+
+    if (!$key) {
+        wp_send_json_error(['message' => '❌ License key is empty.']);
+    }
+
+    // TODO: Replace with actual license validation against remote server if needed.
+    // For now, we'll just store it.
+    update_option('utm_tracker_license_key', $key);
+
+    wp_send_json_success(['message' => '✅ License activated and saved.']);
+});
