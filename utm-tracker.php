@@ -1,9 +1,10 @@
 <?php
 /*
 Plugin Name: UTM Tracker
-Description: A powerful UTM tracking solution that stores UTM parameters, dynamically appends them to links, replaces email addresses based on UTM presence, removes UTM parameters from URLs for cleaner links, and includes caching compatibility options. Perfect for campaign tracking, lead attribution, and optimizing marketing performance.
+Plugin URI: https://yourwebsite.com/
+Description: UTM tracking solution that stores UTM parameters, dynamically appends them to links, replaces email addresses based on UTM presence, removes UTM parameters from URLs for cleaner links, and includes caching compatibility options. Perfect for campaign tracking, lead attribution, and optimizing marketing performance.
 Version: 1.4
-Author: Razvan Faraon
+Author: WEB RUNNER
 */
 
 // Exit if accessed directly
