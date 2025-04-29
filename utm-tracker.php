@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: UTM Tracker
-Plugin URI: https://yourwebsite.com/
+Plugin URI: https://web-runner.net/utm-tracker/
 Description: UTM tracking solution that stores UTM parameters, dynamically appends them to links, replaces email addresses based on UTM presence, removes UTM parameters from URLs for cleaner links, and includes caching compatibility options. Perfect for campaign tracking, lead attribution, and optimizing marketing performance.
 Version: 1.4
 Author: WEB RUNNER
@@ -17,6 +17,48 @@ function utm_tracker_start_session() {
     }
 }
 add_action('init', 'utm_tracker_start_session', 1);
+
+// Check License Active
+function is_utm_tracker_license_active() {
+    return get_transient('utm_tracker_license_status') === 'valid';
+}
+
+// Force license check before admin-page loads
+utm_tracker_check_license_status();
+
+add_action('admin_init', 'utm_tracker_check_license_status');
+
+// Check License Status
+function utm_tracker_check_license_status() {
+    if (!defined('UTM_TRACKER_LICENSE_ACTIVE')) {
+        $license_key = get_option('utm_tracker_license_key', '');
+        $status = get_transient('utm_tracker_license_status');
+
+        if ($status === false && !empty($license_key)) {
+            $response = wp_remote_get(add_query_arg([
+                'edd_action' => 'check_license',
+                'license'    => $license_key,
+                'item_name'  => urlencode('UTM Tracker'),
+                'url'        => home_url()
+            ], 'https://web-runner.net'));
+
+            if (!is_wp_error($response)) {
+                $body = json_decode(wp_remote_retrieve_body($response));
+                if (isset($body->license)) {
+                    $status = ($body->license === 'valid') ? 'valid' : 'invalid';
+                    set_transient('utm_tracker_license_status', $status, DAY_IN_SECONDS);
+                }
+            }
+        }
+
+        define('UTM_TRACKER_LICENSE_ACTIVE', $status === 'valid');
+    }
+}
+
+// Load the EDD Software Licensing Updater
+if (!class_exists('EDD_SL_Plugin_Updater')) {
+    require_once plugin_dir_path(__FILE__) . 'EDD_SL_Plugin_Updater.php';
+}
 
 // Store UTM parameters in session and optionally hide them
 function utm_tracker_store_utm_params() {
@@ -165,3 +207,21 @@ add_action('updated_option', function($option, $old_value, $new_value) {
         utm_tracker_detect_changes($option, $old_value, $new_value);
     }
 }, 10, 3);
+
+
+// FILE UPDATER
+add_action('admin_init', function() {
+    if (!class_exists('EDD_SL_Plugin_Updater')) {
+        return;
+    }
+
+    $license_key = trim(get_option('utm_tracker_license_key')); // pull license key
+
+    $edd_updater = new EDD_SL_Plugin_Updater('https://web-runner.net', __FILE__, array(
+        'version'   => '1.4', 
+        'license'   => $license_key,
+        'item_name' => 'UTM Tracker', 
+        'author'    => 'Web Runner', 
+        'url'       => home_url(),
+    ));
+});

@@ -187,7 +187,7 @@ function utm_tracker_hosts_field_render() {
               </div>';
     }
     echo '</div>';
-    echo '<button type="button" id="add-host">+ Add Host</button>';
+	echo '<button type="button" id="add-host" ' . (!is_utm_tracker_license_active() ? 'disabled' : '') . '>+ Add Host</button>';
     echo '<script>
             document.addEventListener("DOMContentLoaded", function() {
                 let addButton = document.getElementById("add-host");
@@ -352,7 +352,7 @@ function utm_tracker_email_replacements_render() {
               </div>';
     }
     echo '</div>';
-    echo '<button type="button" id="add-email">+ Add Email Rule</button>';
+	echo '<button type="button" id="add-email" ' . (!is_utm_tracker_license_active() ? 'disabled' : '') . '>+ Add Email Rule</button>';
 
     echo '<script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -423,6 +423,11 @@ add_action('admin_head', function () {
 function utm_tracker_options_page() {
     ?>
     <div class="utm-tracker-settings-wrapper">
+		<?php if (!is_utm_tracker_license_active()) : ?>
+			<div style="background: #ffc107; padding: 1rem; color: #222; font-weight: bold; border-radius: 6px; margin-bottom: 1rem;">
+				⚠️ Limited Access: Activate your license to unlock full functionality.
+			</div>
+		<?php endif; ?>
         <?php
         // Display admin notice if email sanitization failed
         if (!empty($_SESSION['utm_tracker_email_errors'])) {
@@ -439,7 +444,7 @@ function utm_tracker_options_page() {
             <?php
             settings_fields('utmTracker');
             do_settings_sections('utmTracker');
-            submit_button();
+            submit_button('Save Changes', 'primary', 'submit', !is_utm_tracker_license_active());
             ?>
         </form>
 
@@ -450,6 +455,7 @@ function utm_tracker_options_page() {
                 placeholder="Enter your license key" 
                 value="<?php echo esc_attr(get_option('utm_tracker_license_key', '')); ?>" />
             <button type="button" id="utm-license-activate-btn" disabled>Activate License</button>
+			<button type="button" id="utm-license-deactivate-btn" style="display: none;">Deactivate</button>
         </div>
 
         <div id="utm-license-message"></div>
@@ -506,6 +512,21 @@ function utm_tracker_options_page() {
             cursor: not-allowed;
             opacity: 0.6;
         }
+		
+		#utm-license-deactivate-btn {
+			background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            margin-left: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+		}
+		#utm-license-deactivate-btn:hover {
+            background: #005a9e;
+        }
         #utm-license-message {
             margin-top: 10px;
             font-weight: bold;
@@ -514,37 +535,74 @@ function utm_tracker_options_page() {
         </style>
 
         <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const keyInput = document.getElementById("utm-license-key-input");
-            const activateBtn = document.getElementById("utm-license-activate-btn");
-            const messageBox = document.getElementById("utm-license-message");
+			document.addEventListener("DOMContentLoaded", function() {
+				const keyInput = document.getElementById("utm-license-key-input");
+				const activateBtn = document.getElementById("utm-license-activate-btn");
+				const deactivateBtn = document.getElementById("utm-license-deactivate-btn");
+				const messageBox = document.getElementById("utm-license-message");
 
-            keyInput.addEventListener("input", function() {
-                activateBtn.disabled = keyInput.value.trim() === "";
-            });
+				keyInput.addEventListener("input", function() {
+					activateBtn.disabled = keyInput.value.trim() === "";
+				});
 
-            activateBtn.addEventListener("click", function() {
-                const key = keyInput.value.trim();
-                messageBox.innerHTML = "🔄 Verifying license...";
+				<?php if (defined('UTM_TRACKER_LICENSE_ACTIVE') && UTM_TRACKER_LICENSE_ACTIVE): ?>
+					deactivateBtn.style.display = 'inline-block';
+				<?php endif; ?>
 
-                fetch(ajaxurl, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: new URLSearchParams({
-                        action: 'utm_activate_license',
-                        license_key: key,
-                        _ajax_nonce: '<?php echo wp_create_nonce("utm_license_nonce"); ?>'
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    messageBox.innerHTML = data.message;
-                })
-                .catch(() => {
-                    messageBox.innerHTML = "❌ Something went wrong.";
-                });
-            });
-        });
+				activateBtn.addEventListener("click", function() {
+					const key = keyInput.value.trim();
+					messageBox.innerHTML = "🔄 Verifying license...";
+
+					fetch(ajaxurl, {
+						method: 'POST',
+						headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+						body: new URLSearchParams({
+							action: 'utm_activate_license',
+							license_key: key,
+							_ajax_nonce: '<?php echo wp_create_nonce("utm_license_nonce"); ?>'
+						})
+					})
+					.then(res => res.json())
+					.then(data => {
+						if (data.success) {
+							messageBox.innerHTML = data.message || "✅ Activated.";
+							setTimeout(() => location.reload(), 1000);
+						} else {
+							messageBox.innerHTML = data.message || "❌ Activation failed. Check your active license number or contact support";
+						}
+					})
+					.catch(() => {
+						messageBox.innerHTML = "❌ Something went wrong.";
+					});
+				});
+
+				deactivateBtn.addEventListener("click", function() {
+					const key = keyInput.value.trim();
+					messageBox.innerHTML = "🔄 Deactivating...";
+
+					fetch(ajaxurl, {
+						method: 'POST',
+						headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+						body: new URLSearchParams({
+							action: 'utm_deactivate_license',
+							license_key: key,
+							_ajax_nonce: '<?php echo wp_create_nonce("utm_license_nonce"); ?>'
+						})
+					})
+					.then(res => res.json())
+					.then(data => {
+						if (data.success) {
+							messageBox.innerHTML = data.message || "✅ Deactivated.";
+							setTimeout(() => location.reload(), 1000);
+						} else {
+							messageBox.innerHTML = data.message || "❌ Deactivation failed.";
+						}
+					})
+					.catch(() => {
+						messageBox.innerHTML = "❌ Something went wrong.";
+					});
+				});
+			});
         </script>
 
     </div>
@@ -630,22 +688,80 @@ function utm_tracker_options_page() {
 		h2 {
 			font-size: 1.8em;
 		}
+		button[disabled] {
+			background-color: #ccc !important;
+			cursor: not-allowed !important;
+			opacity: 0.6;
+		}
     </style>
     <?php
 }
 
-add_action('wp_ajax_utm_activate_license', function () {
+add_action('wp_ajax_utm_activate_license', 'utm_activate_license');
+function utm_activate_license() {
     check_ajax_referer('utm_license_nonce');
 
-    $key = sanitize_text_field($_POST['license_key'] ?? '');
+    $license_key = sanitize_text_field($_POST['license_key']);
+    $store_url   = 'https://web-runner.net';
+    $item_name   = urlencode('UTM Tracker');
 
-    if (!$key) {
-        wp_send_json_error(['message' => '❌ License key is empty.']);
+    $api_params = [
+        'edd_action' => 'activate_license',
+        'license'    => $license_key,
+        'item_name'  => $item_name,
+        'url'        => home_url()
+    ];
+
+    $response = wp_remote_get(add_query_arg($api_params, $store_url));
+
+    if (is_wp_error($response)) {
+        wp_send_json(['success' => false, 'data' => ['message' => '❌ Connection failed.']]);
     }
 
-    // TODO: Replace with actual license validation against remote server if needed.
-    // For now, we'll just store it.
-    update_option('utm_tracker_license_key', $key);
+    $license_data = json_decode(wp_remote_retrieve_body($response));
 
-    wp_send_json_success(['message' => '✅ License activated and saved.']);
+    if ($license_data && $license_data->success) {
+        update_option('utm_tracker_license_key', $license_key);
+        update_option('utm_tracker_license_status', 'valid');
+        set_transient('utm_tracker_license_status', 'valid', DAY_IN_SECONDS);
+
+        wp_send_json([
+            'success' => true,
+            'data' => ['message' => '✅ License activated and saved.']
+        ]);
+    } else {
+        $error_msg = isset($license_data->error) ? ucfirst(str_replace('_', ' ', $license_data->error)) : 'Invalid license.';
+        wp_send_json([
+            'success' => false,
+            'data' => ['message' => '❌ Activation failed: ' . esc_html($error_msg)]
+        ]);
+    }
+}
+
+add_action('wp_ajax_utm_deactivate_license', function () {
+    check_ajax_referer('utm_license_nonce');
+
+    $license_key = sanitize_text_field($_POST['license_key']);
+    $api_params = [
+        'edd_action' => 'deactivate_license',
+        'license'    => $license_key,
+        'item_name'  => urlencode('UTM Tracker'),
+        'url'        => home_url()
+    ];
+
+    $response = wp_remote_get(add_query_arg($api_params, 'https://web-runner.net'));
+
+    if (is_wp_error($response)) {
+        wp_send_json(['success' => false, 'message' => 'Error connecting to server.']);
+    }
+
+    $license_data = json_decode(wp_remote_retrieve_body($response));
+
+    if ($license_data && $license_data->license === 'deactivated') {
+        delete_option('utm_tracker_license_key');
+        delete_transient('utm_tracker_license_status');
+        wp_send_json(['success' => true, 'message' => '✅ License deactivated.']);
+    } else {
+        wp_send_json(['success' => false, 'message' => '❌ Deactivation failed.']);
+    }
 });
